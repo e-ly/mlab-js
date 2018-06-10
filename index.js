@@ -37,20 +37,17 @@ module.exports = class mLab {
             Id: opts.Id || null,
             waitEnabled: opts.waitEnabled || false,
             waitInterval: opts.waitInterval || 30,
-            refreshInterval: opts.refreshInterval || 60000 * 30
+            refreshInterval: opts.refreshInterval || 18000000
         }
 
     }
 
     async Connect() {
 
-        await this.__Authenicate()
-        await this.__UpdateCSRFToken()
-        await this.__GetAccountId()
-        await this.__LoadDatabases()
-
+        if (!this.Internal.isAuthenticated) await this.Login()
+        
         this.Internal.Refresher = setInterval(async () => {
-            await this.__UpdateCSRFToken()
+            await this.Login()
         }, this.Internal.refreshInterval)
 
         return true 
@@ -144,21 +141,13 @@ module.exports = class mLab {
         await Request(URL, {
             method: 'POST', jar: thisJar,
             form: { db: name },
-            followRedirect: false
-        })
-        .catch(async errRes => {
 
-            let statusCode = errRes.statusCode
-            if (statusCode != 302) {
-                HandleErr(errRes, 'Failed to remove database.')
-            } else {
-                try {
-                    await this.GetDatabaseStatus(name)
-                    throw new Error('Failed to remove database.')
-                } catch (e) {}
-            }
+            maxRedirects: 1,
+            followAllRedirects: true, 
+            followRedirect: (r) => r.headers.location == '/home'
 
         })
+        .catch(errRes => HandleErr(errRes, 'Failed to remove database.'))
 
         delete this.Databases[name]
 
@@ -169,7 +158,57 @@ module.exports = class mLab {
     // Internal functions listed below, little documentation
     // provided for these methods.
 
-    async __Authenicate() {
+    async Logout() {
+        
+        let thisJar = this.Internal.cookieJar,
+            csrf = this.Internal.csrfToken,
+            URL = `https://mlab.com/logout?=${csrf}`
+        
+        await Request(URL, {
+            method: 'POST', jar: thisJar,
+            form: { CSRF_TOKEN: csrf },
+            followAllRedirects: true,
+            followRedirect: (r) => r.headers.location == '/login/'
+        })
+        .then(() => this.Internal.cookieJar = Request.jar())
+        .catch(errRes => HandleErr(errRes, 'Failed to sign out.'))
+        
+        this.Internal.isAuthenticated = false
+        this.Internal.csrfToken = null
+        this.Internal.Id = null
+
+        for (let key in this.Databases) delete this.Databases[key]
+        this.Databases = {}
+        
+        return true
+
+    }
+
+    async Login() {
+        
+        await this.__Authenticate()
+        await this.__UpdateCSRFToken()
+
+        if (!this.Internal.Id) {
+            await this.__GetAccountId()
+            await this.__LoadDatabases()
+        }
+
+        return true
+
+    }
+
+    async __Authenticate() {
+
+        if (this.Internal.isAuthenticated) {
+            
+            // await this.Logout()
+            // OR 
+            this.Internal.cookieJar = Request.jar()
+            this.Internal.isAuthenticated = false
+            this.Internal.csrfToken = null
+
+        }
 
         let thisJar = this.Internal.cookieJar,
             URL = 'https://mlab.com/dologin?r=',
@@ -179,7 +218,8 @@ module.exports = class mLab {
         await Request(URL, {
             method: 'POST', jar: thisJar,
             form: { username: name, password: password }
-        }).catch(errRes => {
+        })
+        .catch(errRes => {
 
             let statusCode = errRes.statusCode
 
@@ -203,7 +243,7 @@ module.exports = class mLab {
     async __UpdateCSRFToken() {
         
         // Before anything, ensure that the user is authenticated.
-        if (!this.Internal.isAuthenticated) await this.__Authenicate()
+        if (!this.Internal.isAuthenticated) await this.__Authenticate()
 
         // Now we can continue the procedure
         let thisJar = this.Internal.cookieJar,
@@ -229,7 +269,7 @@ module.exports = class mLab {
         // His creativeness was the reason why we can do this.
         
         // Before anything (again), ensure that the user is authenticated.
-        if (!this.Internal.isAuthenticated) await this.__Authenicate()
+        if (!this.Internal.isAuthenticated) await this.__Authenticate()
         if (this.Internal.Id) return this.Internal.Id 
         
         let thisJar = this.Internal.cookieJar,
@@ -331,6 +371,7 @@ class mBase {
             csrf = this.csrf,
             URL = `https://mlab.com/adddbuser?CSRF_TOKEN=${csrf}`
 
+        let loc = `/databases/${this.name}#users`
         await Request(URL, {
             method: 'POST', jar: thisJar, 
             form: {
@@ -342,17 +383,17 @@ class mBase {
                 password2: opts.password,
                 readOnly: opts.readOnly ? 'readOnly' : null
             },
-            followRedirect: false
+
+            maxRedirects: 1,
+            followAllRedirects: true,
+            followRedirect: (r) => r.headers.location == loc
+
         })
-        .catch(async errRes => {
-            let statusCode = errRes.statusCode
-            if (statusCode != 302) HandleErr(errRes, 'Failed to add user.')
-            else {
-                if (!await this.HasUser(opts.name)) {
-                    throw new Error('Failed to add user.')
-                } else this.Users[opts.name] = opts.password
-            }
-        })
+        .catch(errRes => HandleErr(errRes, 'Failed to add user.'))
+        
+        if (!await this.HasUser(opts.name)) {
+            throw new Error('Failed to add user, malformed request.')
+        } else this.Users[opts.name] = opts.password
 
         return true 
 
@@ -361,13 +402,14 @@ class mBase {
     async RemoveUser(name) {
         
         if (!await this.HasUser(name)) {
-            throw new Error(`User "${name}" does not exists.`)
+            throw new Error(`User "${name}" does not exist.`)
         }
 
         let thisJar = this.jar,
             csrf = this.csrf,
             URL = `https://mlab.com/deletedbuser?CSRF_TOKEN=${csrf}`
 
+        let loc = `/databases/${this.name}#users`
         await Request(URL, {
             method: 'POST', jar: thisJar, 
             form: {
@@ -376,19 +418,19 @@ class mBase {
                 
                 username: name
             },
-            followRedirect: false
+
+            maxRedirects: 1,
+            followAllRedirects: true,
+            followRedirect: (r) => r.headers.location == loc
+
         })
-        .catch(async errRes => {
-            let statusCode = errRes.statusCode
-            if (statusCode != 302) HandleErr(errRes, 'Failed to delete user.')
-            else {
-                if (await this.HasUser(name)) {
-                    throw new Error('Failed to delete user.')
-                } else {
-                    if (this.Users[name]) delete this.Users[name]
-                }
-            }
-        })
+        .catch(errRes => HandleErr(errRes, 'Failed to delete user.'))
+        
+        let lastValue = this.Users[name]
+        delete this.Users[name]
+        if (await this.HasUser(name)) {
+            throw new Error('Failed to remove user.')
+        } else this.Users[name] = lastValue
 
         return true 
 
