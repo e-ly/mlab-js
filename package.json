@@ -1,0 +1,23 @@
+{
+  "name": "mlab.js",
+  "version": "1.2.0",
+  "description": "mLab API strictly for deploying DBs & adding users.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "e-ly",
+  "license": "MIT",
+  "dependencies": {
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/e-ly/nodelab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/e-ly/nodelab/issues"
+  },
+  "homepage": "https://github.com/e-ly/nodelab#readme"
+}
