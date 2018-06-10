@@ -20,10 +20,10 @@ lab.Connect().then(async () => {
 ```js
 {
     
-    name: 'string'
+    name: 'string',
     // the username of the account
 
-    password: 'string'
+    password: 'string',
     // the password of the account
 
     Id: null,
@@ -33,7 +33,7 @@ lab.Connect().then(async () => {
     waitEnabled: false,
     // if true, then it will ensure to wait until the db is loaded
     
-    waitInterval: 30
+    waitInterval: 30,
     // the wait interval used when waiting for db to be loaded
 
     refreshInterval: 60000 * 30
