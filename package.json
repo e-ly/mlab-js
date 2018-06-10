@@ -1,6 +1,6 @@
 {
   "name": "mlab.js",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "mLab API strictly for deploying DBs & adding users.",
   "main": "index.js",
   "scripts": {
@@ -14,10 +14,10 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/e-ly/nodelab.git"
+    "url": "git+https://github.com/e-ly/mlab.js.git"
   },
   "bugs": {
-    "url": "https://github.com/e-ly/nodelab/issues"
+    "url": "https://github.com/e-ly/mlab.js/issues"
   },
-  "homepage": "https://github.com/e-ly/nodelab#readme"
+  "homepage": "https://github.com/e-ly/mlab.js#readme"
 }
