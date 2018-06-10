@@ -339,8 +339,8 @@ class mBase {
     
                 username: opts.name,
                 password: opts.password,
-                password2: opts.password//,
-                //readOnly: opts.readOnly ? 'readOnly' : null
+                password2: opts.password,
+                readOnly: opts.readOnly ? 'readOnly' : null
             },
             followRedirect: false
         })
