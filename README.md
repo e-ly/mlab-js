@@ -1,4 +1,4 @@
-# mlab.js
+# mlab-js
 
 Uses mLab's hidden API (probably for good reason) to strictly deploy & remove databases along with adding and removing users to them.
 
@@ -7,7 +7,7 @@ By using this package, you agree that I am not liable for whatever happens to yo
 ## example of use
 ```js
 // refer to test.js for a more in-depth example
-const mLab = require('mlab.js')
+const mLab = require('mlab-js')
 
 let lab = new mLab({ name: 'name', password: 'pass' })
 lab.Connect().then(async () => {
