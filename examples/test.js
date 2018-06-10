@@ -9,8 +9,8 @@ function Sleep(seconds) {
 }
 
 let myLab = new mLab({
-    name: 'akyuma',
-    password: 'Herking530'
+    name: '',
+    password: ''
 })
 
 myLab.Connect().then(() => {
