@@ -28,7 +28,7 @@ myLab.Connect().then(() => {
         let template = mbase.Meta.uriTemplate
         console.log('Database template = ' + template)
         console.log('Database uri = ' + mbase.Meta.uriAddress)
-
+        
         mbase.AddUser({
             name: 'ExampleUser',
             password: 'examplePass0',

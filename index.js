@@ -10,7 +10,8 @@ function Sleep(seconds) {
 
 function HandleErr(errRes, preMsg) {
     // I'm lazy lol ..
-    let statusCode = errRes.statusCode
+    let statusCode = errRes.statusCode || 'UNK'
+    console.log(`${statusCode}: ${errRes.message}`)
     throw new Error(`Error ${statusCode}: ${preMsg}`)
 }
 
@@ -142,10 +143,8 @@ module.exports = class mLab {
             method: 'POST', jar: thisJar,
             form: { db: name },
 
-            maxRedirects: 1,
             followAllRedirects: true, 
             followRedirect: (r) => r.headers.location == '/home'
-
         })
         .catch(errRes => HandleErr(errRes, 'Failed to remove database.'))
 
@@ -371,7 +370,10 @@ class mBase {
             csrf = this.csrf,
             URL = `https://mlab.com/adddbuser?CSRF_TOKEN=${csrf}`
 
-        let loc = `/databases/${this.name}#users`
+        let paths = {
+            [`/databases/${this.name}#users`]: true,
+            '/home': true
+        }
         await Request(URL, {
             method: 'POST', jar: thisJar, 
             form: {
@@ -384,9 +386,8 @@ class mBase {
                 readOnly: opts.readOnly ? 'readOnly' : null
             },
 
-            maxRedirects: 1,
             followAllRedirects: true,
-            followRedirect: (r) => r.headers.location == loc
+            followRedirect: (r) => paths[r.headers.location]
 
         })
         .catch(errRes => HandleErr(errRes, 'Failed to add user.'))
@@ -409,7 +410,10 @@ class mBase {
             csrf = this.csrf,
             URL = `https://mlab.com/deletedbuser?CSRF_TOKEN=${csrf}`
 
-        let loc = `/databases/${this.name}#users`
+        let paths = {
+            [`/databases/${this.name}#users`]: true,
+            '/home': true
+        }
         await Request(URL, {
             method: 'POST', jar: thisJar, 
             form: {
@@ -419,9 +423,8 @@ class mBase {
                 username: name
             },
 
-            maxRedirects: 1,
             followAllRedirects: true,
-            followRedirect: (r) => r.headers.location == loc
+            followRedirect: (r) => paths[r.headers.location]
 
         })
         .catch(errRes => HandleErr(errRes, 'Failed to delete user.'))

@@ -1,6 +1,6 @@
 {
   "name": "mlab-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "mLab API strictly for deploying DBs & adding users.",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "author": "e-ly",
   "license": "MIT",
   "dependencies": {
+    "request": "^2.87.0",
     "request-promise": "^4.2.2"
   },
   "devDependencies": {},
