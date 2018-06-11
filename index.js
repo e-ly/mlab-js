@@ -429,8 +429,9 @@ class mBase {
         let lastValue = this.Users[name]
         delete this.Users[name]
         if (await this.HasUser(name)) {
+            this.Users[name] = lastValue
             throw new Error('Failed to remove user.')
-        } else this.Users[name] = lastValue
+        }
 
         return true 
 
