@@ -371,6 +371,7 @@ class mBase {
             URL = `https://mlab.com/adddbuser?CSRF_TOKEN=${csrf}`
 
         let paths = {
+            [`https://mlab.com/databases/${this.name}#users`]: true,
             [`/databases/${this.name}#users`]: true,
             '/home': true
         }
@@ -379,7 +380,8 @@ class mBase {
             form: {
                 db: this.name, 
                 tab: '#users',
-    
+                r:`https://mlab.com/databases/${this.name}`,
+
                 username: opts.name,
                 password: opts.password,
                 password2: opts.password,
@@ -411,6 +413,7 @@ class mBase {
             URL = `https://mlab.com/deletedbuser?CSRF_TOKEN=${csrf}`
 
         let paths = {
+            [`https://mlab.com/databases/${this.name}#users`]: true,
             [`/databases/${this.name}#users`]: true,
             '/home': true
         }
@@ -419,6 +422,7 @@ class mBase {
             form: {
                 db: this.name, 
                 tab: '#users',
+                r:`https://mlab.com/databases/${this.name}`,
                 
                 username: name
             },
