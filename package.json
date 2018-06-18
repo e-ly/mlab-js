@@ -1,6 +1,6 @@
 {
   "name": "mlab-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "mLab API strictly for deploying DBs & adding users.",
   "main": "index.js",
   "scripts": {
