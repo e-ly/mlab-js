@@ -18,7 +18,7 @@ lab.Connect().then(async () => {
 
 ## available options
 ```js
-{
+new mLab({
     
     name: 'string',
     // the username of the account
@@ -39,12 +39,12 @@ lab.Connect().then(async () => {
     refreshInterval: 60000 * 30
     // the refresh interval for retrieving the csrf token
 
-}
+})
 ```
 
 ## deploying a database
 ```js
-{
+mLab.DeployDatabase({
 
     name: 'string',
     // the name of the database
@@ -65,12 +65,12 @@ lab.Connect().then(async () => {
 
     plan: 'aws-sandbox-v2'
 
-}
+})
 ```
 
 ## adding a user
 ```js
-{
+mBase.addUser({
     
     // self explanatory
     name: 'string',
@@ -79,7 +79,7 @@ lab.Connect().then(async () => {
     ignore: false,
     // if true, will not throw an error if the user already exists
 
-}
+})
 ```
 
 
