@@ -315,7 +315,7 @@ class mBase {
     constructor(mlab, meta) {
     
         let ci = meta.connectionInfo
-
+        
         this.name = meta.name
         this.Id = meta._id
         this.Meta = {
@@ -326,8 +326,8 @@ class mBase {
             version: meta.mongodbVersion,
             display: meta.mlabDisplayLabel,
 
-            uriTemplate: ci.uriTemplate,
-            uriAddress: `mongodb://${ci.uriComponents.serverAddresses[0]}`
+            uriTemplate: ci.uriTemplate.replace('-a', ''),
+            uriAddress: `mongodb://${ci.uriComponents.serverAddresses[0]}`.replace('-a', '')
 
         }
         
