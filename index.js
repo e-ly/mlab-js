@@ -87,7 +87,7 @@ module.exports = class mLab {
                 region: region,
                 plan: opts.plan || 'aws-sandbox-v2',
                 provider: opts.provider || 'AWS',
-                mongodbVersion: opts.version || '3.4.15'
+                mongodbVersion: opts.version || '3.6.6'
             }, 
             headers: {
                 'CSRF_TOKEN': csrf, 
