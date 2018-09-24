@@ -36,11 +36,11 @@ myLab.Connect().then(() => {
         }).then(() => {
             let final = template.replace('{username}', 'ExampleUser').replace('{password}', 'examplePw0')
             console.log('Database uri w/ user = ' + final)
-            /*Sleep(5).then(() => {
+            Sleep(5).then(() => {
                 mbase.Delete().then(() => {
                     console.log('Test concluded, all cleaned up!')
                 })
-            })*/
+            })
         })
 
     })

@@ -61,7 +61,7 @@ mLab.DeployDatabase({
 
     provider: 'AWS',
     
-    version: '3.4.15',
+    version: '3.6.8',
 
     plan: 'aws-sandbox-v2'
 

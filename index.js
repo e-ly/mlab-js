@@ -11,7 +11,7 @@ function Sleep(seconds) {
 function HandleErr(errRes, preMsg) {
     // I'm lazy lol ..
     let statusCode = errRes.statusCode || 'UNK'
-    console.log(`${statusCode}: ${errRes.message}`)
+    console.log(`${statusCode}: ${errRes.message || errRes.error.message }`)
     throw new Error(`Error ${statusCode}: ${preMsg}`)
 }
 
@@ -80,21 +80,34 @@ module.exports = class mLab {
             id = this.Internal.Id,
             URL = `https://mlab.com/mlab-api/accounts/${id}/deployments`
 
-        let res = await Request(URL, {
+        let req = {
             method: 'POST', jar: thisJar, json: true,
             body: {
                 dbName: name,
                 region: region,
                 plan: opts.plan || 'aws-sandbox-v2',
                 provider: opts.provider || 'AWS',
-                mongodbVersion: opts.version || '3.6.7'
+                mongodbVersion: opts.version || '3.6.8'
             }, 
             headers: {
                 'CSRF_TOKEN': csrf, 
                 'X-REQUESTED-WITH': ''
             } 
-        })
-        .catch(errRes => HandleErr(errRes, 'Failed to deploy database.'))
+        }
+        let res = await Request(URL, req)
+        .catch(async statusCodeErr => {
+            if (statusCodeErr.error.code === 400 && statusCodeErr.error.description === 'Bad Request') {
+                let rgxMatch = /\s([^a-z]+),/gi.exec(statusCodeErr.error.message)
+                if (!rgxMatch) HandleErr(statusCodeErr, 'Failed to deploy database.')
+                else {
+                    let [ _, newMongodbVersion ] = rgxMatch
+                    console.log(`NOTE: Package's default vers. of mongodb, ${ req.body.mongodbVersion }, is outdated, adjusting to ${ newMongodbVersion }`)
+                    req.body.mongodbVersion = newMongodbVersion
+                    return Request(URL, req)
+                }
+            }
+ 
+        })//HandleErr(errRes, 'Failed to deploy database.'))
         
         if (this.Internal.waitEnabled) {
             console.log(`Waiting for db ${name} to be deployed ..`)
