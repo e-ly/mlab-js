@@ -83,11 +83,10 @@ module.exports = class mLab {
         let req = {
             method: 'POST', jar: thisJar, json: true,
             body: {
-                dbName: name,
-                region: region,
+                cloud: { provider: opts.provider || 'aws', region: region },
+                initialDatabase: { name: name },
                 plan: opts.plan || 'aws-sandbox-v2',
-                provider: opts.provider || 'AWS',
-                mongodbVersion: opts.version || '3.6.8'
+                mongoVersion: opts.version || '3.6.8'
             }, 
             headers: {
                 'CSRF_TOKEN': csrf, 
@@ -96,13 +95,14 @@ module.exports = class mLab {
         }
         let res = await Request(URL, req)
         .catch(async statusCodeErr => {
+            console.table(statusCodeErr.error)
             if (statusCodeErr.error.code === 400 && statusCodeErr.error.description === 'Bad Request') {
                 let rgxMatch = /\s([^a-z]+),/gi.exec(statusCodeErr.error.message)
                 if (!rgxMatch) HandleErr(statusCodeErr, 'Failed to deploy database.')
                 else {
                     let [ _, newMongodbVersion ] = rgxMatch
                     console.log(`NOTE: Package's default vers. of mongodb, ${ req.body.mongodbVersion }, is outdated, adjusting to ${ newMongodbVersion }`)
-                    req.body.mongodbVersion = newMongodbVersion
+                    req.body.mongoVersion = newMongodbVersion
                     return Request(URL, req)
                 }
             }
